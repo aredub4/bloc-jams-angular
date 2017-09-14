@@ -1,8 +1,11 @@
 (function() {
-     function SongPlayer() {
+  function SongPlayer(Fixtures) {
           var SongPlayer = {};
-
-          var currentSong = null;
+          var currentAlbum = Fixtures.getAlbum();
+          var getSongIndex = function(song) {
+          return currentAlbum.songs.indexOf(song);
+ };
+          SongPlayer.currentSong = null;
           var currentBuzzObject = null;
           /**
            * @function setSong
@@ -28,6 +31,7 @@
            };
 
           SongPlayer.play = function(song) {
+            song = song || SongPlayer.currentSong;
             if (currentSong !== song) {
               setSong(song);
 
@@ -37,10 +41,24 @@
                song.playing = true;
            }
        };
-               SongPlayer.pause = function(song) {
+              SongPlayer.pause = function(song) {
+              song = song || SongPlayer.currentSong;
                currentBuzzObject.pause();
                song.playing = false;
          };
+         SongPlayer.previous = function() {
+          var currentSongIndex = getSongIndex(SongPlayer.currentSong);
+          currentSongIndex--;
+          if (currentSongIndex < 0) {
+         currentBuzzObject.stop();
+         SongPlayer.currentSong.playing = null;
+       } else {
+       var song = currentAlbum.songs[currentSongIndex];
+       setSong(song);
+       playSong(song);
+   }
+};
+
                    currentBuzzObject.play();
                  }
                };
@@ -50,5 +68,5 @@
 
      angular
          .module('blocJams')
-         .factory('SongPlayer', SongPlayer);
+         .factory('SongPlayer', ['Fixtures', SongPlayer]);
  })();
